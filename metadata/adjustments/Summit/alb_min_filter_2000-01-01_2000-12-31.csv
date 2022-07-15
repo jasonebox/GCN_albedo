@@ -1,0 +1,2 @@
+t0,t1,variable,adjust_function,adjust_value,comment,count
+2000-01-01T00:00:00+00:00,2000-12-31T00:00:00+00:00,alb,min_filter,0.765,outlier?,23
