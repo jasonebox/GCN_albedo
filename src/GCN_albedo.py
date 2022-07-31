@@ -18,6 +18,7 @@ base_dir = '/Users/jason/Dropbox/AWS/GCNET/GC-Net-level-1-data-processing/L1/'
 files = sorted(glob(base_dir+'*'))
 from os import path
 import nead
+import calendar
 
 n_stations=len(files)
 
@@ -34,7 +35,7 @@ sites_original_convention=[
 "DYE2",
 # "jar1",
 # "saddle",
-# "southdome",
+"SouthDome",
 "NAE",
 # "nasa_southeast",
 "NEEM",
@@ -131,9 +132,13 @@ def adjuster(site,df,var_list,y0,m0,d0,func,y1,m1,d1,comment,val):
 
         if func == 'min_filter': 
             tmp = df_out.loc[t0:t1,var].values
+            tmp2 = df_out.loc[t0:t1,'alb_rejected'].values
             count=sum(tmp<val)
-            tmp[tmp<val] = np.nan
+            v=tmp<val
+            tmp2[v]=tmp[v]
+            tmp[v] = np.nan
             df_out.loc[t0:t1,var] = tmp
+            df_out.loc[t0:t1,'alb_rejected'] = tmp2
 
         if func == 'nan_var': 
             tmp = df_out.loc[t0:t1,var].values
@@ -143,9 +148,13 @@ def adjuster(site,df,var_list,y0,m0,d0,func,y1,m1,d1,comment,val):
             
         if func == 'max_filter': 
             tmp = df_out.loc[t0:t1,var].values
-            count=sum(tmp>val)
-            tmp[tmp>val] = np.nan
+            tmp2 = df_out.loc[t0:t1,'alb_rejected'].values
+            count=sum(tmp<val)
+            v=tmp>val
+            tmp2[v]=tmp[v]
+            tmp[v] = np.nan
             df_out.loc[t0:t1,var] = tmp
+            df_out.loc[t0:t1,'alb_rejected'] = tmp2
 
         # if 'swap_with_' in func: 
         #     var2 = func[10:]
@@ -181,6 +190,12 @@ wo=1
 wo_seasonal=0
 
 
+i_year=2000
+i_year=1996
+f_year=2021
+n_years=f_year-i_year+1
+
+
 sites=site_list.Name.values
 # sites=info_all.name.values
 
@@ -191,64 +206,71 @@ for site, ID in zip(site_list.Name,site_list.ID):
     site=site.replace(' ','')
     # if site!='null':
     # if site=='NASA-E':
-    if site=='Summit':
+    # if site=='Summit':
     # if site=='SwissCamp':
-    # if site=='DYE2':
+    if site=='DYE2':
+    # if site=='SouthDome':
     #     print(ID)
     # if ID>=0:
     # if ID==12:
-        # site='swisscamp'
-        # df=pd.read_csv('./output/swc_air_t_1990-2021.csv')
-        # print(site)
-        # fn=base_dir+str(info_all['Station Number'][st].astype(int)).zfill(2)+'-'+site+'.csv'
-        # print(fn)
-        # print('# '+str(ID)+ ' ' + site)
-        filename = base_dir+str(ID).zfill(2)+'-'+site+'.csv'
-        if not path.exists(filename):
-            print('Warning: No file for station '+str(ID)+' '+site)
-            continue
-        ds = nead.read(filename)
-        df = ds.to_dataframe()
-        df=df.reset_index(drop=True)
-        df[df == -999] = np.nan
-        df['time'] = pd.to_datetime(df.timestamp)
-        df = df.set_index('time')
-
-        # print(df.columns)
-        df[df==999]=np.nan
-        
-        df['year'] = df.index.year
-        df['month'] = df.index.month
-        
-        df.columns
-        df['doy'] = df.index.dayofyear
-        
-        import calendar
-
-        time = pd.to_datetime(df.timestamp)
-
-        i_year=2000
-        i_year=1996
-        f_year=2021
-        n_years=f_year-i_year+1
-        
-        
-        JJA_albedo=np.zeros(n_years)
-        JJA_albedo_stdev=np.zeros(n_years)
-        
         # -------------------------------- loop years
-
         for yy in range(n_years+1):
             yearx=yy+i_year
             print(site,yearx)
             n_days=365
             if calendar.isleap(yearx):
                 n_days=366
-
-            # if yearx==2022:
+    
+            # if yearx==2021:
             if yearx>=209:
-            
+
+        # site='swisscamp'
+        # df=pd.read_csv('./output/swc_air_t_1990-2021.csv')
+        # print(site)
+        # fn=base_dir+str(info_all['Station Number'][st].astype(int)).zfill(2)+'-'+site+'.csv'
+        # print(fn)
+        # print('# '+str(ID)+ ' ' + site)
+                filename = base_dir+str(ID).zfill(2)+'-'+site+'.csv'
+                if not path.exists(filename):
+                    print('Warning: No file for station '+str(ID)+' '+site)
+                    continue
+                ds = nead.read(filename)
+                df = ds.to_dataframe()
+                df=df.reset_index(drop=True)
+                df[df == -999] = np.nan
+                df['time'] = pd.to_datetime(df.timestamp)
+                df = df.set_index('time')
+        
+                # print(df.columns)
+                df[df==999]=np.nan
+                
+                df['year'] = df.index.year
+                df['month'] = df.index.month
+                
+                df.columns
+                df['doy'] = df.index.dayofyear
+        
+        
+                # t0=datetime(2013,1,1) ; t1=datetime(2013,12,31)
+                
+                # plt.plot(df.ISWR[t0:t1])
+                # plt.plot(df.OSWR[t0:t1])
+        
+                if site=='SwissCamp':
+                    df=adjuster(site,df,['ISWR','OSWR'],2013,1,1,'swap',2018,12,31,'upward and downward SW wiring swapped?',0.5)
+                    df=adjuster(site,df,['ISWR','OSWR'],2019,1,1,'swap',2019,12,31,'upward and downward SW wiring swapped?',0.5)
+                    df=adjuster(site,df,['ISWR','OSWR'],2020,1,1,'swap',2020,12,31,'upward and downward SW wiring swapped?',0.5)
+                    df=adjuster(site,df,['ISWR','OSWR'],2021,1,1,'swap',2021,12,31,'upward and downward SW wiring swapped?',0.5)
+        
+                time = pd.to_datetime(df.timestamp)
+        
+                
+                # JJA_albedo=np.zeros(n_years)
+                # JJA_albedo_stdev=np.zeros(n_years)
+                
+                    
                 alb=np.zeros(n_days)*np.nan
+                alb_rejected=np.zeros(n_days)*np.nan
                 year=np.zeros(n_days)*np.nan
                 month=np.zeros(n_days)*np.nan
                 day=np.zeros(n_days)*np.nan
@@ -266,13 +288,14 @@ for site, ID in zip(site_list.Name,site_list.ID):
                     day[dd]=time.strftime('%d')
                     doy[dd]=time.strftime('%j')
                     
-                df_daily = pd.DataFrame(columns = ['year','month','day','doy','alb']) 
+                df_daily = pd.DataFrame(columns = ['year','month','day','doy','alb','alb_rejected']) 
                 df_daily.index.name = 'index'
                 df_daily["year"]=pd.Series(year)
                 df_daily["month"]=pd.Series(month)
                 df_daily["day"]=pd.Series(day)
                 df_daily["doy"]=pd.Series(doy)
                 df_daily["alb"]=pd.Series(alb)                
+                df_daily["alb_rejected"]=pd.Series(alb_rejected)                
                 df_daily["date"]=pd.to_datetime(df_daily[['year', 'month', 'day']])
             
                 drop=0
@@ -285,9 +308,76 @@ for site, ID in zip(site_list.Name,site_list.ID):
                     df_daily.reset_index(drop=True, inplace=True)
             
                 df_daily.index = pd.to_datetime(df_daily.date)
-##%%
-
-                
+        
+                if site=='SwissCamp':
+                    df_daily=adjuster(site,df_daily,['alb'],1997,1,1,'min_filter',1997,12,31,'outlier?',0.5)
+                    df_daily=adjuster(site,df_daily,['alb'],1997,1,1,'max_filter',1997,12,31,'outlier?',0.91)
+                    df_daily=adjuster(site,df_daily,['alb'],1998,9,15,'min_filter',1998,12,31,'outlier?',0.69)
+                    df_daily=adjuster(site,df_daily,['alb'],1999,1,1,'min_filter',1999,5,31,'outlier?',0.7)
+                    df_daily=adjuster(site,df_daily,['alb'],1999,1,1,'max_filter',1999,12,31,'outlier?',0.9)
+                    df_daily=adjuster(site,df_daily,['alb'],2003,1,1,'min_filter',2003,12,31,'outlier?',0.1)
+                    df_daily=adjuster(site,df_daily,['alb'],2004,9,1,'min_filter',2004,12,31,'outlier?',0.74)
+                    df_daily=adjuster(site,df_daily,['alb'],2005,1,1,'min_filter',2005,12,31,'outlier?',0.1)
+                    df_daily=adjuster(site,df_daily,['alb'],2007,1,1,'min_filter',2007,12,31,'outlier?',0.3)
+                    df_daily=adjuster(site,df_daily,['alb'],2009,1,1,'min_filter',2009,12,31,'outlier?',0.4)
+                    df_daily=adjuster(site,df_daily,['alb'],2010,1,1,'min_filter',2010,3,31,'outlier?',0.7)
+                    df_daily=adjuster(site,df_daily,['alb'],2011,1,1,'min_filter',2011,12,31,'outlier?',0.1)
+                    df_daily=adjuster(site,df_daily,['alb'],2012,1,1,'min_filter',2012,12,31,'outlier?',0.1)
+                    df_daily=adjuster(site,df_daily,['alb'],2013,1,1,'min_filter',2013,3,31,'outlier?',0.8)
+                    df_daily=adjuster(site,df_daily,['alb'],2013,10,1,'min_filter',2013,12,31,'outlier?',0.8)
+                    df_daily=adjuster(site,df_daily,['alb'],2014,1,1,'min_filter',2014,3,31,'outlier?',0.78)
+                    df_daily=adjuster(site,df_daily,['alb'],2014,10,1,'min_filter',2014,12,31,'outlier?',0.8)
+                    df_daily=adjuster(site,df_daily,['alb'],2015,1,1,'min_filter',2015,3,31,'outlier?',0.78)
+                    df_daily=adjuster(site,df_daily,['alb'],2015,10,1,'min_filter',2015,12,31,'outlier?',0.8)
+                    df_daily=adjuster(site,df_daily,['alb'],2016,1,1,'min_filter',2016,3,31,'outlier?',0.78)
+                    df_daily=adjuster(site,df_daily,['alb'],2016,10,1,'min_filter',2016,12,31,'outlier?',0.8)
+                    df_daily=adjuster(site,df_daily,['alb'],2017,1,1,'min_filter',2017,3,31,'outlier?',0.83)
+                    df_daily=adjuster(site,df_daily,['alb'],2017,10,1,'min_filter',2017,12,31,'outlier?',0.94)
+                    df_daily=adjuster(site,df_daily,['alb'],2018,1,1,'min_filter',2018,3,31,'outlier?',0.84)
+                    df_daily=adjuster(site,df_daily,['alb'],2018,10,1,'min_filter',2018,12,31,'outlier?',0.94)
+                    df_daily=adjuster(site,df_daily,['alb'],2019,10,15,'min_filter',2019,12,31,'outlier?',0.8)
+                    df_daily=adjuster(site,df_daily,['alb'],2020,10,15,'min_filter',2020,12,31,'outlier?',0.8)
+                    df_daily=adjuster(site,df_daily,['alb'],2021,1,1,'min_filter',2021,3,31,'outlier?',0.84)
+        
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,6,1,'max_filter',yearx,8,31,'outlier?',0.95)
+        
+                if site=='SouthDome':
+                    df_daily=adjuster(site,df_daily,['alb'],1999,1,1,'min_filter',1999,12,31,'outlier?',0.6)
+                    df_daily=adjuster(site,df_daily,['alb'],2000,1,1,'min_filter',2000,12,31,'outlier?',0.6)
+                    df_daily=adjuster(site,df_daily,['alb'],2001,1,1,'min_filter',2001,12,31,'outlier?',0.6)
+                    df_daily=adjuster(site,df_daily,['alb'],2003,1,1,'min_filter',2003,12,31,'outlier?',0.6)
+                    df_daily=adjuster(site,df_daily,['alb'],2004,1,1,'min_filter',2004,12,31,'outlier?',0.66)
+                    df_daily=adjuster(site,df_daily,['alb'],2005,1,1,'min_filter',2005,12,31,'outlier?',0.66)
+                    df_daily=adjuster(site,df_daily,['alb'],2007,1,1,'min_filter',2007,12,31,'outlier?',0.7)
+                    df_daily=adjuster(site,df_daily,['alb'],2008,1,1,'min_filter',2008,12,31,'outlier?',0.7)
+                    df_daily=adjuster(site,df_daily,['alb'],2009,1,1,'min_filter',2009,12,31,'outlier?',0.82)
+                    df_daily=adjuster(site,df_daily,['alb'],2010,1,1,'min_filter',2010,12,31,'outlier?',0.81)
+                    df_daily=adjuster(site,df_daily,['alb'],2011,1,1,'min_filter',2011,12,31,'outlier?',0.75)
+                    df_daily=adjuster(site,df_daily,['alb'],2013,1,1,'min_filter',2013,12,31,'outlier?',0.8)
+        
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,1,1,'min_filter',yearx,4,30,'outlier?',0.75)
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,9,1,'min_filter',yearx,12,31,'outlier?',0.75)
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,6,1,'max_filter',yearx,8,31,'outlier?',0.94)
+        
+        
+                if site=='DYE2':
+                    df_daily=adjuster(site,df_daily,['alb'],1996,8,1,'min_filter',1996,12,31,'outlier?',0.765)
+                    df_daily=adjuster(site,df_daily,['alb'],1997,1,1,'min_filter',1997,12,31,'outlier?',0.715)
+                    df_daily=adjuster(site,df_daily,['alb'],1998,1,1,'min_filter',1998,12,31,'outlier?',0.715)
+                    df_daily=adjuster(site,df_daily,['alb'],2008,1,1,'min_filter',2008,12,31,'outlier?',0.74)
+                    df_daily=adjuster(site,df_daily,['alb'],2012,1,1,'min_filter',2012,4,30,'outlier?',0.85)
+                    df_daily=adjuster(site,df_daily,['alb'],2013,1,1,'min_filter',2013,4,30,'outlier?',0.88)
+                    df_daily=adjuster(site,df_daily,['alb'],2013,9,1,'min_filter',2013,12,31,'outlier?',0.87)
+                    df_daily=adjuster(site,df_daily,['alb'],2014,1,1,'min_filter',2014,4,30,'outlier?',0.88)
+                    df_daily=adjuster(site,df_daily,['alb'],2014,9,1,'min_filter',2014,12,31,'outlier?',0.87)
+                    df_daily=adjuster(site,df_daily,['alb'],2015,1,1,'min_filter',2015,4,30,'outlier?',0.88)
+                    df_daily=adjuster(site,df_daily,['alb'],2015,8,22,'min_filter',2015,12,31,'outlier?',0.87)
+                    df_daily=adjuster(site,df_daily,['alb'],2016,1,1,'min_filter',2016,4,30,'outlier?',0.85)
+        
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,1,1,'min_filter',yearx,3,31,'outlier?',0.75)
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,10,1,'min_filter',yearx,12,31,'outlier?',0.75)
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,6,1,'max_filter',yearx,8,31,'outlier?',0.94)
+        
                 if site=='Summit':
                     df_daily=adjuster(site,df_daily,['alb'],1996,1,1,'min_filter',1996,12,31,'outlier?',0.775)
                     df_daily=adjuster(site,df_daily,['alb'],1996,1,1,'max_filter',1996,12,31,'outlier?',0.89)
@@ -323,7 +413,7 @@ for site, ID in zip(site_list.Name,site_list.ID):
                     df_daily=adjuster(site,df_daily,['alb'],yearx,6,1,'max_filter',yearx,8,31,'outlier?',0.94)
                     
                 # if aws_nam(st)=='PTE':
-
+        
                     #   alb(st,yy,0:99)=-999.
                 #   alb(st,yy,280:364)=-999.
                 #   if year(yy)=='2014' then alb(st,yy,0:191)=-999.
@@ -500,8 +590,8 @@ for site, ID in zip(site_list.Name,site_list.ID):
                 #   if year(yy)=='2013' then alb(st,yy,0:95)=-999.
                 #   if year(yy)=='2014' then alb(st,yy,0:116)=-999. &if year(yy)=='2014' then alb(st,yy,290:364)=-999.
                 # endif
-
-
+        
+        
                 #     df_daily.alb[]v=where(alb(st,yy,*) lt 0.7) & alb(st,yy,v)=-999
                 #     alb(st,yy,247:364)=-999.
                 #     v=where(reform(alb(st,yy,*)) gt 0.85 and days_365 gt 150 and days_365 lt 180) & alb(st,yy,v)=-999
@@ -601,8 +691,8 @@ for site, ID in zip(site_list.Name,site_list.ID):
                 #     alb(st,yy,200:364)=-999.
                 #   endif
                 # endif
-
-
+        
+        
                 if do_plot:
                     plt.close()
                 
@@ -614,19 +704,19 @@ for site, ID in zip(site_list.Name,site_list.ID):
                     
                     # plt.plot(df.doy,df.alb,'.',c='k')
                     # plt.errorbar(df.doy,df.alb,yerr=df.stdev, fmt='none',label='albedo')
-                    ax.plot(df_daily["alb"],'.',c='b',label='GC-Net')
-
+                    ax.plot(df_daily["alb"],'.',c='b')#,label='GC-Net')
+        
                 
                     # plt.xlabel('day of year')
-                    ax.set_title(site+' albedo '+str(yearx))
-                    plt.legend()
+                    ax.set_title('GC-Net '+site+' albedo '+str(yearx))
+                    # plt.legend()
                     # plt.plot(df.doy,df.stdev,'.',c='k')
                     # ax[cc].set_xlim(t0,t1)
                     # ax[cc].legend()
                     ax.set_xlim(datetime((yearx),1,1),datetime((yearx),12,31))
                     plt.setp(ax.xaxis.get_majorticklabels(), rotation=90,ha='center' )
                     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y %b'))
-
+        
                     ofile='./metadata/Figs/'+site+'/'
                     os.system('mkdir -p '+ofile)
                     if ly=='p':
@@ -650,16 +740,17 @@ for site, ID in zip(site_list.Name,site_list.ID):
                 #     df_daily = df_daily.drop('date', axis=1)
                 #     df_daily.to_csv(ofile+'.csv')
                 #     # df_daily.to_excel(ofile+'.xlsx')
-
+        
                 gc_file='./data_daily/'+site+'_'+str(yearx)
                 df_daily['alb'] = df_daily['alb'].map(lambda x: '%.3f' % x)
+                df_daily['alb_rejected'] = df_daily['alb_rejected'].map(lambda x: '%.3f' % x)
                 df_daily['day'] = df_daily['day'].map(lambda x: '%.0f' % x)
                 df_daily['year'] = df_daily['year'].map(lambda x: '%.0f' % x)
                 df_daily['month'] = df_daily['month'].map(lambda x: '%.0f' % x)
                 df_daily['doy'] = df_daily['doy'].map(lambda x: '%.0f' % x)
                 df_daily = df_daily.drop('date', axis=1)
                 df_daily.to_csv(gc_file+'.csv')
-
+        
         # if wo_seasonal:
         #     df_JJA = pd.DataFrame(columns = ['year','JJA_albedo','JJA_albedo_stdev']) 
         #     df_JJA.index.name = 'index'
