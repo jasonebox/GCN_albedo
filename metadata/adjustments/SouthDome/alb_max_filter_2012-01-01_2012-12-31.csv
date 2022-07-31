@@ -1,0 +1,2 @@
+t0,t1,variable,adjust_function,adjust_value,comment,count
+2012-01-01T00:00:00+00:00,2012-12-31T00:00:00+00:00,alb,max_filter,0.98,outlier?,273

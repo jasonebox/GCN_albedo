@@ -208,8 +208,8 @@ for site, ID in zip(site_list.Name,site_list.ID):
     # if site=='NASA-E':
     # if site=='Summit':
     # if site=='SwissCamp':
-    if site=='DYE2':
-    # if site=='SouthDome':
+    # if site=='DYE2':
+    if site=='SouthDome':
     #     print(ID)
     # if ID>=0:
     # if ID==12:
@@ -221,8 +221,8 @@ for site, ID in zip(site_list.Name,site_list.ID):
             if calendar.isleap(yearx):
                 n_days=366
     
-            # if yearx==2021:
-            if yearx>=209:
+            if yearx==2019:
+            # if yearx>=209:
 
         # site='swisscamp'
         # df=pd.read_csv('./output/swc_air_t_1990-2021.csv')
@@ -309,6 +309,33 @@ for site, ID in zip(site_list.Name,site_list.ID):
             
                 df_daily.index = pd.to_datetime(df_daily.date)
         
+                if site=='SouthDome':
+                    df_daily=adjuster(site,df_daily,['alb'],1999,1,1,'min_filter',1999,12,31,'outlier?',0.6)
+                    df_daily=adjuster(site,df_daily,['alb'],2000,1,1,'min_filter',2000,12,31,'outlier?',0.6)
+                    df_daily=adjuster(site,df_daily,['alb'],2001,1,1,'min_filter',2001,12,31,'outlier?',0.6)
+                    df_daily=adjuster(site,df_daily,['alb'],2003,1,1,'min_filter',2003,12,31,'outlier?',0.6)
+                    df_daily=adjuster(site,df_daily,['alb'],2004,1,1,'min_filter',2004,12,31,'outlier?',0.66)
+                    df_daily=adjuster(site,df_daily,['alb'],2005,1,1,'min_filter',2005,12,31,'outlier?',0.66)
+                    df_daily=adjuster(site,df_daily,['alb'],2007,1,1,'min_filter',2007,12,31,'outlier?',0.7)
+                    df_daily=adjuster(site,df_daily,['alb'],2008,1,1,'min_filter',2008,12,31,'outlier?',0.7)
+                    df_daily=adjuster(site,df_daily,['alb'],2009,1,1,'min_filter',2009,12,31,'outlier?',0.82)
+                    df_daily=adjuster(site,df_daily,['alb'],2010,1,1,'min_filter',2010,12,31,'outlier?',0.81)
+                    df_daily=adjuster(site,df_daily,['alb'],2011,1,1,'min_filter',2011,12,31,'outlier?',0.75)
+                    df_daily=adjuster(site,df_daily,['alb'],2013,1,1,'min_filter',2013,12,31,'outlier?',0.8)
+                    df_daily=adjuster(site,df_daily,['alb'],2014,1,1,'min_filter',2014,5,31,'outlier?',0.85)
+                    df_daily=adjuster(site,df_daily,['alb'],2015,1,1,'min_filter',2015,12,31,'outlier?',0.875)
+                    df_daily=adjuster(site,df_daily,['alb'],2016,1,1,'min_filter',2016,12,31,'outlier?',0.85)
+                    df_daily=adjuster(site,df_daily,['alb'],2017,1,1,'min_filter',2017,12,31,'outlier?',0.85)
+                    df_daily=adjuster(site,df_daily,['alb'],2018,1,1,'min_filter',2018,4,30,'outlier?',0.85)
+                    df_daily=adjuster(site,df_daily,['alb'],2018,9,1,'min_filter',2018,12,31,'outlier?',0.85)
+                    df_daily=adjuster(site,df_daily,['alb'],2019,1,1,'min_filter',2019,3,31,'outlier?',0.87)
+                    df_daily=adjuster(site,df_daily,['alb'],2019,9,1,'min_filter',2019,12,31,'outlier?',0.87)
+
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,1,1,'min_filter',yearx,4,30,'outlier?',0.75)
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,9,1,'min_filter',yearx,12,31,'outlier?',0.75)
+                    df_daily=adjuster(site,df_daily,['alb'],yearx,6,1,'max_filter',yearx,8,31,'outlier?',0.94)
+        
+        
                 if site=='SwissCamp':
                     df_daily=adjuster(site,df_daily,['alb'],1997,1,1,'min_filter',1997,12,31,'outlier?',0.5)
                     df_daily=adjuster(site,df_daily,['alb'],1997,1,1,'max_filter',1997,12,31,'outlier?',0.91)
@@ -340,25 +367,7 @@ for site, ID in zip(site_list.Name,site_list.ID):
                     df_daily=adjuster(site,df_daily,['alb'],2021,1,1,'min_filter',2021,3,31,'outlier?',0.84)
         
                     df_daily=adjuster(site,df_daily,['alb'],yearx,6,1,'max_filter',yearx,8,31,'outlier?',0.95)
-        
-                if site=='SouthDome':
-                    df_daily=adjuster(site,df_daily,['alb'],1999,1,1,'min_filter',1999,12,31,'outlier?',0.6)
-                    df_daily=adjuster(site,df_daily,['alb'],2000,1,1,'min_filter',2000,12,31,'outlier?',0.6)
-                    df_daily=adjuster(site,df_daily,['alb'],2001,1,1,'min_filter',2001,12,31,'outlier?',0.6)
-                    df_daily=adjuster(site,df_daily,['alb'],2003,1,1,'min_filter',2003,12,31,'outlier?',0.6)
-                    df_daily=adjuster(site,df_daily,['alb'],2004,1,1,'min_filter',2004,12,31,'outlier?',0.66)
-                    df_daily=adjuster(site,df_daily,['alb'],2005,1,1,'min_filter',2005,12,31,'outlier?',0.66)
-                    df_daily=adjuster(site,df_daily,['alb'],2007,1,1,'min_filter',2007,12,31,'outlier?',0.7)
-                    df_daily=adjuster(site,df_daily,['alb'],2008,1,1,'min_filter',2008,12,31,'outlier?',0.7)
-                    df_daily=adjuster(site,df_daily,['alb'],2009,1,1,'min_filter',2009,12,31,'outlier?',0.82)
-                    df_daily=adjuster(site,df_daily,['alb'],2010,1,1,'min_filter',2010,12,31,'outlier?',0.81)
-                    df_daily=adjuster(site,df_daily,['alb'],2011,1,1,'min_filter',2011,12,31,'outlier?',0.75)
-                    df_daily=adjuster(site,df_daily,['alb'],2013,1,1,'min_filter',2013,12,31,'outlier?',0.8)
-        
-                    df_daily=adjuster(site,df_daily,['alb'],yearx,1,1,'min_filter',yearx,4,30,'outlier?',0.75)
-                    df_daily=adjuster(site,df_daily,['alb'],yearx,9,1,'min_filter',yearx,12,31,'outlier?',0.75)
-                    df_daily=adjuster(site,df_daily,['alb'],yearx,6,1,'max_filter',yearx,8,31,'outlier?',0.94)
-        
+
         
                 if site=='DYE2':
                     df_daily=adjuster(site,df_daily,['alb'],1996,8,1,'min_filter',1996,12,31,'outlier?',0.765)
